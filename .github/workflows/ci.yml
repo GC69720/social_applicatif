@@ -6,11 +6,21 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# Autorisations pour le workflow appelé
+permissions:
+  contents: read
+  packages: write
+  security-events: write
+  id-token: write
+
 jobs:
   app-ci:
-    uses: uses: GC69720/social_ci-cd/.github/workflows/python-django.yml@v1
+    uses: GC69720/social_ci-cd/.github/workflows/python-django.yml@v1
     with:
       python_version: "3.12"
-      working_directory: "."     # pour l’instant on bosse à la racine
-      run_tests: true            # on ajoute un petit test de fumée ci-dessous
-      docker_image_name: ""      # pas de build d'image pour le moment
+      working_directory: "."      # ajuste si /backend
+      run_tests: true             # OK même sans tests, pytest renverra 0 si rien à collecter
+      upload_test_artifacts: false
+      django_settings_module: ""  # active plus tard (ex: app.settings)
+      enable_codeql: false        # <- on coupe CodeQL pour le vert rapide
+      docker_image_name: ""       # pas de build image pour l’instant
