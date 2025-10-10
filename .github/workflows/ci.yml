@@ -8,7 +8,7 @@ on:
 
 jobs:
   app-ci:
-    uses: GC69720/ci-templates/.github/workflows/python-django.yml@v1
+    uses: uses: GC69720/social_ci-cd/.github/workflows/python-django.yml@v1
     with:
       python_version: "3.12"
       working_directory: "."     # pour l’instant on bosse à la racine
