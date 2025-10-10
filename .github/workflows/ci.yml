@@ -1,0 +1,16 @@
+name: ci
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  app-ci:
+    uses: GC69720/ci-templates/.github/workflows/python-django.yml@v1
+    with:
+      python_version: "3.12"
+      working_directory: "."     # pour l’instant on bosse à la racine
+      run_tests: true            # on ajoute un petit test de fumée ci-dessous
+      docker_image_name: ""      # pas de build d'image pour le moment
