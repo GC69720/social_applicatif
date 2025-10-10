@@ -1,26 +1,27 @@
-name: app-ci
+---
+name: ci
 
-on:
+'on':
   push:
-    branches:
-      - main
+    branches: ['main']
   pull_request:
+    branches: ['main']
+
+# Autorisations pour le workflow appelé
+permissions:
+  contents: read
+  packages: write
+  security-events: write
+  id-token: write
 
 jobs:
-  python-django:
-    uses: GC69720/social_ci-cd/.github/workflows/python-django.yml@v1.1
+  app-ci:
+    uses: GC69720/social_ci-cd/.github/workflows/python-django.yml@v1
     with:
       python_version: "3.12"
-      working_directory: backend
-      run_tests: true             # pytest renvoie 0 ou 5 (aucun test); les deux sont gérés côté workflow
-      upload_test_artifacts: true
-      django_settings_module: "backend.settings"
-      requirements_file: "backend/requirements.txt"
-      extra_install_cmd: ""
-      enable_codeql: false
-      docker_image_name: "gc69720/social-backend"
-      docker_context: "backend"
-      dockerfile: "backend/Dockerfile"
-      docker_build_args: ""
-    secrets:
-      CLOUD_ROLE: ${{ secrets.CLOUD_ROLE }}
+      working_directory: "."          # mets "backend" quand ton Django existera
+      run_tests: true                 # OK si on a un test de fumée
+      upload_test_artifacts: false
+      django_settings_module: ""      # ex. "app.settings" plus tard
+      enable_codeql: false            # on activera plus tard
+      docker_image_name: ""           # on activera plus tard
