@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   app-ci:
-    uses: GC69720/social_ci-cd/.github/workflows/python-django.yml@v1
+    uses: GC69720/social_ci-cd/.github/workflows/python-django.yml@v1.0.0
     with:
       python_version: "3.12"
       working_directory: "."          # mets "backend" quand ton Django existera

@@ -1,3 +1,4 @@
+
 name: security
 
 'on':
@@ -5,16 +6,16 @@ name: security
     branches: ['main']
   pull_request:
     branches: ['main']
-  workflow_dispatch: {}   # permet de lancer à la demande
+  workflow_dispatch: {}
 
 permissions:
   contents: read
-  security-events: write  # nécessaire pour uploader les SARIF
+  security-events: write
   packages: read
 
 jobs:
   trivy:
     uses: GC69720/social_ci-cd/.github/workflows/container-security.yml@v1.0.0
     with:
-      image: ""  # vide = pas de scan d'image pour l'instant
-      path: "."  # scan FS du repo
+      image: ""   # ex. ghcr.io/gc69720/social-backend:ci-123 plus tard
+      path: "."
