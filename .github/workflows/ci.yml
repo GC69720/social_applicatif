@@ -14,19 +14,32 @@ permissions:
   id-token: write
 
 jobs:
-  # 1) Lint/Tests/CodeQL (comme avant, sans build d'image intégré)
   app-ci:
     uses: GC69720/social_ci-cd/.github/workflows/python-django.yml@v1
     with:
       python_version: "3.12"
-      working_directory: "."
+      working_directory: "backend"
       run_tests: true
-      upload_test_artifacts: false
-      django_settings_module: ""   # ex: app.settings plus tard
-      enable_codeql: true          # SAST activé
-      docker_image_name: ""        # <- vide = pas de build via Docker action
+      upload_test_artifacts: true
+      django_settings_module: "app.settings"    # ajuste au nom de ton module settings
+      enable_codeql: true
+      docker_image_name: ""                     # build image via Podman/Buildah (job suivant)
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+          POSTGRES_DB: appdb
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd="pg_isready -U app -d appdb"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      DATABASE_URL: "postgres://app:app@localhost:5432/appdb"
 
-  # 2) Build & Push OCI via Podman/Buildah (réutilisable)
   build-image:
     needs: [app-ci]
     uses: GC69720/social_ci-cd/.github/workflows/container-buildah.yml@v1
@@ -37,3 +50,11 @@ jobs:
       tags: |
         ci-${{ github.run_number }}
         ${{ github.sha }}
+
+  sbom-sign:
+    needs: [build-image]
+    uses: GC69720/social_ci-cd/.github/workflows/oci-sbom-sign.yml@v1
+    with:
+      image: "ghcr.io/gc69720/social-backend:ci-${{ github.run_number }}"
+      generate_spdx: true
+      sign_image: true
