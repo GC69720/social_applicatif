@@ -1,0 +1,20 @@
+name: security
+
+'on':
+  push:
+    branches: ['main']
+  pull_request:
+    branches: ['main']
+  workflow_dispatch: {}   # permet de lancer à la demande
+
+permissions:
+  contents: read
+  security-events: write  # nécessaire pour uploader les SARIF
+  packages: read
+
+jobs:
+  trivy:
+    uses: GC69720/social_ci-cd/.github/workflows/container-security.yml@v1.0.0
+    with:
+      image: ""  # vide = pas de scan d'image pour l'instant
+      path: "."  # scan FS du repo
