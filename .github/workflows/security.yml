@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   trivy:
-    uses: GC69720/social_ci-cd/.github/workflows/container-security.yml@v1.0.0
+    uses: GC69720/social_ci-cd/.github/workflows/container-security.yml@v1
     with:
       image: ""   # ex. ghcr.io/gc69720/social-backend:ci-123 plus tard
       path: "."
