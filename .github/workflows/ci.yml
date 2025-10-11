@@ -55,6 +55,6 @@ jobs:
     needs: [build-image]
     uses: GC69720/social_ci-cd/.github/workflows/oci-sbom-sign.yml@v1
     with:
-      image: "ghcr.io/gc69720/social-backend:ci-${{ github.run_number }}"
+      image: "ghcr.io/gc69720/social-backend:${{ github.sha }}"
       generate_spdx: true
       sign_image: true
