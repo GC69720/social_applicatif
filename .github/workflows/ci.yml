@@ -7,7 +7,6 @@ name: ci
   pull_request:
     branches: ['main']
 
-# Autorisations pour le workflow appelé
 permissions:
   contents: read
   packages: write
@@ -15,13 +14,26 @@ permissions:
   id-token: write
 
 jobs:
+  # 1) Lint/Tests/CodeQL (comme avant, sans build d'image intégré)
   app-ci:
-    uses: GC69720/social_ci-cd/.github/workflows/python-django.yml@v1.0.0
+    uses: GC69720/social_ci-cd/.github/workflows/python-django.yml@v1
     with:
       python_version: "3.12"
-      working_directory: "."          # mets "backend" quand ton Django existera
-      run_tests: true                 # OK si on a un test de fumée
+      working_directory: "."
+      run_tests: true
       upload_test_artifacts: false
-      django_settings_module: ""      # ex. "app.settings" plus tard
-      enable_codeql: false            # on activera plus tard
-      docker_image_name: ""           # on activera plus tard
+      django_settings_module: ""   # ex: app.settings plus tard
+      enable_codeql: true          # SAST activé
+      docker_image_name: ""        # <- vide = pas de build via Docker action
+
+  # 2) Build & Push OCI via Podman/Buildah (réutilisable)
+  build-image:
+    needs: [app-ci]
+    uses: GC69720/social_ci-cd/.github/workflows/container-buildah.yml@v1
+    with:
+      image_name: "ghcr.io/gc69720/social-backend"
+      context: "."
+      containerfile: "infra/podman/Containerfile.backend"
+      tags: |
+        ci-${{ github.run_number }}
+        ${{ github.sha }}

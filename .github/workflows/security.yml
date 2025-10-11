@@ -1,4 +1,4 @@
-
+---
 name: security
 
 'on':
@@ -15,7 +15,8 @@ permissions:
 
 jobs:
   trivy:
+    needs: [build-image]   # si tu veux t'assurer que l'image existe avant
     uses: GC69720/social_ci-cd/.github/workflows/container-security.yml@v1
     with:
-      image: ""   # ex. ghcr.io/gc69720/social-backend:ci-123 plus tard
+      image: "ghcr.io/gc69720/social-backend:ci-${{ github.run_number }}"
       path: "."

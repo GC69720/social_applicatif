@@ -1,0 +1,22 @@
+# OCI Containerfile (compatible Podman/Buildah)
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      build-essential curl ca-certificates git \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Dépendances si présentes
+COPY requirements.txt /app/requirements.txt
+RUN if [ -f /app/requirements.txt ]; then pip install --no-cache-dir -r /app/requirements.txt; fi
+
+# Code
+COPY . /app
+
+# Entrypoint temporaire (dev) — remplace plus tard par gunicorn/uvicorn + Django
+CMD ["python", "-c", "print('app container up'); import time; time.sleep(3600)"]
