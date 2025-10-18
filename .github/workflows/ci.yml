@@ -19,11 +19,10 @@ jobs:
     uses: GC69720/social_ci-cd/.github/workflows/python-django.yml@v1.1.0
     with:
       python_version: "3.12"
-      working_directory: "backend"
+      working_directory: "."           # ✅ repo sans dossier backend pour l’instant
       django_settings_module: "app.settings"
       run_tests: true
       upload_test_artifacts: true
-      # (optionnel) paramètres DB du template si tu veux activer Postgres côté template :
       postgres_image: "postgres:16"
       postgres_user: "app"
       postgres_password: "app"
