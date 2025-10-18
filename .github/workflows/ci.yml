@@ -1,11 +1,12 @@
 ---
 name: ci
 
-'on':
+on:
   push:
-    branches: ['main']
+    branches: ["main"]
   pull_request:
-    branches: ['main']
+    branches: ["main"]
+  workflow_dispatch: {}
 
 permissions:
   contents: read
@@ -15,30 +16,18 @@ permissions:
 
 jobs:
   app-ci:
-    uses: GC69720/social_ci-cd/.github/workflows/python-django.yml@v1
+    uses: GC69720/social_ci-cd/.github/workflows/python-django.yml@v1.1.0
     with:
       python_version: "3.12"
       working_directory: "backend"
+      django_settings_module: "app.settings"
       run_tests: true
       upload_test_artifacts: true
-      django_settings_module: "app.settings"    # ajuste au nom de ton module settings
-      enable_codeql: true
-      docker_image_name: ""                     # build image via Podman/Buildah (job suivant)
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: app
-          POSTGRES_PASSWORD: app
-          POSTGRES_DB: appdb
-        ports: ['5432:5432']
-        options: >-
-          --health-cmd="pg_isready -U app -d appdb"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
-    env:
-      DATABASE_URL: "postgres://app:app@localhost:5432/appdb"
+      # DB intégrée côté template :
+      postgres_image: "postgres:16"
+      postgres_user: "app"
+      postgres_password: "app"
+      postgres_db: "appdb"
 
   build-image:
     needs: [app-ci]

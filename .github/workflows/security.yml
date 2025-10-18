@@ -1,12 +1,17 @@
 ---
 name: security
 
-'on':
+on:
   push:
-    branches: ['main']
+    branches: ["main"]
   pull_request:
-    branches: ['main']
-  workflow_dispatch: {}
+    branches: ["main"]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Tag d'image à scanner (sinon commit SHA)"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -15,8 +20,8 @@ permissions:
 
 jobs:
   trivy:
-    needs: [build-image]   # si tu veux t'assurer que l'image existe avant
     uses: GC69720/social_ci-cd/.github/workflows/container-security.yml@v1
     with:
-      image: "ghcr.io/gc69720/social-backend:ci-${{ github.run_number }}"
+      # Si manuel -> on utilise l'input ; sinon -> SHA du commit
+      image: ghcr.io/gc69720/social-backend:${{ github.event_name == 'workflow_dispatch' && github.event.inputs.image_tag || github.sha }}
       path: "."
