@@ -9,7 +9,7 @@ on:
   workflow_dispatch: {}
 
 permissions:
-  contents: read
+  contents: write          # <-- et plus 'read' ; corrige l'erreur du run 18620558365
   packages: write
   security-events: write
   id-token: write
@@ -19,7 +19,7 @@ jobs:
     uses: GC69720/social_ci-cd/.github/workflows/python-django.yml@v1.1.0
     with:
       python_version: "3.12"
-      working_directory: "."              # change en "backend" quand tu crées le dossier
+      working_directory: "."              # mets "backend" si besoin
       django_settings_module: "app.settings"
       run_tests: true
       upload_test_artifacts: true
@@ -41,7 +41,7 @@ jobs:
     with:
       image: "ghcr.io/gc69720/social-backend:${{ github.sha }}"
       generate_spdx: true
-      sign_image: false     # <-- on neutralise Cosign tant que tout n'est pas stabilisé
+      sign_image: false     # tu pourras remettre true plus tard
 
   image-security:
     needs: build-image
