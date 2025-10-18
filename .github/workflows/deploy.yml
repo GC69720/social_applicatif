@@ -1,0 +1,110 @@
+---
+name: deploy
+
+'on':
+  # Déploiement manuel (préconisé pour prod, préprod)
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Cible de déploiement"
+        required: true
+        type: choice
+        options: [preprod, prod]
+        default: preprod
+      image_tag:
+        description: "Tag d'image à déployer (ex: commit SHA ou ci-<run>)"
+        required: true
+        default: "${{ github.sha }}"
+      app_port:
+        description: "Port d'exposition sur la VM"
+        required: true
+        default: "8000"
+
+permissions:
+  contents: read
+  packages: read
+  id-token: write   # (optionnel, utile si tu ajoutes OIDC plus tard)
+
+# Empêche 2 déploiements concurrents sur le même environnement
+concurrency:
+  group: deploy-${{ github.event.inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: "Deploy to ${{ github.event.inputs.environment }}"
+    runs-on: ubuntu-latest
+
+    # ⚠️ Active l’Environment -> applique approbation manuelle & secrets par env
+    environment:
+      name: ${{ github.event.inputs.environment }}
+
+    timeout-minutes: 15
+
+    env:
+      # 🔁 adapte si ton repo d’images change
+      IMAGE_REPO: "ghcr.io/gc69720/social-backend"
+      CONTAINER_NAME: "social-backend"
+
+    steps:
+      - name: Récap inputs
+        run: |
+          echo "Env      = ${{ github.event.inputs.environment }}"
+          echo "ImageTag = ${{ github.event.inputs.image_tag }}"
+          echo "AppPort  = ${{ github.event.inputs.app_port }}"
+
+      # Déploiement à distance via SSH sur la VM (Podman installé)
+      - name: Deploy over SSH (Podman)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -euo pipefail
+
+            IMAGE_REPO="${IMAGE_REPO}"
+            TAG="${{ github.event.inputs.image_tag }}"
+            IMAGE="${IMAGE_REPO}:${TAG}"
+            CONTAINER="${CONTAINER_NAME}"
+            APP_PORT="${{ github.event.inputs.app_port }}"
+
+            echo "==> Target image: ${IMAGE}"
+            echo "==> Container: ${CONTAINER} on port ${APP_PORT}"
+
+            # (Optionnel) Login GHCR si l'image est privée :
+            REGISTRY_USER="${{ secrets.REGISTRY_USER }}"
+            REGISTRY_TOKEN="${{ secrets.REGISTRY_TOKEN }}"
+            if [[ -n "${REGISTRY_USER}" && -n "${REGISTRY_TOKEN}" ]]; then
+              echo "Login to GHCR…"
+              podman login ghcr.io -u "${REGISTRY_USER}" -p "${REGISTRY_TOKEN}"
+            else
+              echo "No registry credentials provided. Assuming public image or prior login."
+            fi
+
+            echo "Pull image…"
+            podman pull "${IMAGE}"
+
+            echo "Stop & remove previous container if exists…"
+            podman rm -f "${CONTAINER}" || true
+
+            echo "Run new container…"
+            podman run -d --name "${CONTAINER}" \
+              --restart=always \
+              -p "${APP_PORT}:8000" \
+              "${IMAGE}"
+
+            echo "Waiting 5s…"
+            sleep 5
+
+            echo "Container status:"
+            podman ps --filter "name=${CONTAINER}" --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+
+            # (Optionnel) Healthcheck applicatif si endpoint disponible :
+            # curl -fsS "http://127.0.0.1:${APP_PORT}/health" >/dev/null && echo "Health OK"
+
+      - name: Post info
+        run: |
+          echo "Déploiement terminé sur ${{ github.event.inputs.environment }}."
+          echo "Image: ${IMAGE_REPO}:${{ github.event.inputs.image_tag }}"
+          echo "Container: ${CONTAINER_NAME}"
