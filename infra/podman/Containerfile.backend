@@ -1,29 +1,45 @@
-# Base Python
+# infra/podman/Containerfile.backend
+# OCI Containerfile compatible Podman/Buildah
+
 FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
+ARG DEBIAN_FRONTEND=noninteractive
 
+# Dépendances système minimales
 RUN apt-get update && apt-get install -y --no-install-recommends \
       build-essential curl ca-certificates git \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Dépendances
-COPY backend/requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r /app/requirements.txt \
-    && pip install --no-cache-dir gunicorn
+# 1) Copier tout le repo d'abord (évite les COPY vers des chemins inexistants)
+COPY . /src
 
-# Code
-COPY backend/ /app/
+# 2) Installer les deps si un requirements.txt existe (backend/ ou racine)
+RUN set -eux; \
+    REQ=""; \
+    if [ -f /src/backend/requirements.txt ]; then \
+      REQ="/src/backend/requirements.txt"; \
+    elif [ -f /src/requirements.txt ]; then \
+      REQ="/src/requirements.txt"; \
+    else \
+      echo "Aucun requirements.txt trouvé, skip install"; \
+    fi; \
+    if [ -n "$REQ" ]; then \
+      pip install --no-cache-dir -r "$REQ"; \
+    fi
 
-# Collectstatic si tu utilises Django staticfiles
-# RUN python manage.py collectstatic --noinput
+# 3) Poser le code applicatif : backend/ prioritaire, sinon racine
+RUN set -eux; \
+    if [ -d /src/backend ]; then \
+      cp -a /src/backend/. /app/; \
+    else \
+      cp -a /src/. /app/; \
+    fi
 
-# Port (modifiable)
+# 4) Port & commande par défaut (placeholder, à remplacer quand ton app est prête)
 EXPOSE 8000
-
-# Commande de prod (à ajuster selon ton module wsgi/asgi)
-CMD ["gunicorn", "app.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "60"]
+CMD ["python", "-c", "print('app container up'); import time; time.sleep(3600)"]
