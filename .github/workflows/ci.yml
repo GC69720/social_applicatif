@@ -41,7 +41,7 @@ jobs:
     with:
       image: "ghcr.io/gc69720/social-backend:${{ github.sha }}"
       generate_spdx: true
-      sign_image: false
+      sign_image: true
 
   image-security:
     needs: build-image
