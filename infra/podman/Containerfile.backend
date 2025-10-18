@@ -10,8 +10,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-
-# On copie tout puis on sélectionne requirements + source
 COPY . /src
 
 RUN set -eux; \

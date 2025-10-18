@@ -19,7 +19,7 @@ jobs:
     uses: GC69720/social_ci-cd/.github/workflows/python-django.yml@v1.1.0
     with:
       python_version: "3.12"
-      working_directory: "."              # mets "backend" si tu crées le dossier ensuite
+      working_directory: "."              # change en "backend" quand tu crées le dossier
       django_settings_module: "app.settings"
       run_tests: true
       upload_test_artifacts: true
@@ -35,13 +35,13 @@ jobs:
         ci-${{ github.run_number }}
         ${{ github.sha }}
 
-  sbom-sign:
+  sbom:
     needs: build-image
     uses: GC69720/social_ci-cd/.github/workflows/oci-sbom-sign.yml@v1.1.1
     with:
       image: "ghcr.io/gc69720/social-backend:${{ github.sha }}"
       generate_spdx: true
-      sign_image: true
+      sign_image: false     # <-- on neutralise Cosign tant que tout n'est pas stabilisé
 
   image-security:
     needs: build-image
