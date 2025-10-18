@@ -37,7 +37,7 @@ jobs:
 
   sbom:
     needs: build-image
-    uses: GC69720/social_ci-cd/.github/workflows/oci-sbom-sign.yml@v1.1.1
+    uses: GC69720/social_ci-cd/.github/workflows/oci-sbom-sign.yml@v1.1.2
     with:
       image: "ghcr.io/gc69720/social-backend:${{ github.sha }}"
       generate_spdx: true
