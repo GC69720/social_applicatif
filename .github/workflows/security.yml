@@ -1,51 +1,16 @@
----
-name: security
-
+name: secrets
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
   pull_request:
-    branches: ["main"]
+    branches: [ "main" ]
   workflow_dispatch:
-    inputs:
-      image_tag:
-        description: "Tag d'image à scanner (sinon commit SHA)"
-        required: false
-        default: ""
 
 permissions:
   contents: read
   security-events: write
-  packages: read
 
 jobs:
-  probe-image:
-    name: Probe image existence
-    runs-on: ubuntu-latest
-    outputs:
-      image: ${{ steps.check.outputs.image }}
-    steps:
-      - name: Compute ref & check on GHCR
-        id: check
-        run: |
-          set -e
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.image_tag }}" ]; then
-            REF="ghcr.io/gc69720/social-backend:${{ github.event.inputs.image_tag }}"
-          else
-            REF="ghcr.io/gc69720/social-backend:${GITHUB_SHA}"
-          fi
-          echo "Candidate image: $REF"
-          if docker manifest inspect "$REF" >/dev/null 2>&1; then
-            echo "image=$REF" >> "$GITHUB_OUTPUT"
-            echo "found=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "image=" >> "$GITHUB_OUTPUT"
-            echo "found=false" >> "$GITHUB_OUTPUT"
-          fi
-
-  trivy:
-    needs: [probe-image]
-    uses: GC69720/social_ci-cd/.github/workflows/container-security.yml@v1
-    with:
-      image: ${{ needs.probe-image.outputs.image }}   # vide => image-scan skip, FS only
-      path: "."
+  secret-scan:
+    uses: GC69720/social_ci-cd/.github/workflows/secret-scan.yml@v1
+    secrets: inherit

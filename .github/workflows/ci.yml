@@ -1,12 +1,11 @@
 ---
 name: ci
-
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
   pull_request:
-    branches: ["main"]
-  workflow_dispatch: {}
+    branches: [ "main" ]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -19,17 +18,16 @@ jobs:
     uses: GC69720/social_ci-cd/.github/workflows/python-django.yml@v1.1.0
     with:
       python_version: "3.12"
-      working_directory: "."           # ✅ repo sans dossier backend pour l’instant
-      django_settings_module: "app.settings"
+      working_directory: "."        # <- mets "backend" si besoin
       run_tests: true
       upload_test_artifacts: true
-      postgres_image: "postgres:16"
-      postgres_user: "app"
-      postgres_password: "app"
-      postgres_db: "appdb"
+      django_settings_module: "app.settings"
+      enable_codeql: true
+      docker_image_name: ""         # build image dans le job suivant
+    secrets: inherit
 
   build-image:
-    needs: [app-ci]
+    needs: app-ci
     uses: GC69720/social_ci-cd/.github/workflows/container-buildah.yml@v1
     with:
       image_name: "ghcr.io/gc69720/social-backend"
@@ -40,9 +38,17 @@ jobs:
         ${{ github.sha }}
 
   sbom-sign:
-    needs: [build-image]
-    uses: GC69720/social_ci-cd/.github/workflows/oci-sbom-sign.yml@v1
+    needs: build-image
+    uses: GC69720/social_ci-cd/.github/workflows/oci-sbom-sign.yml@v1.1.1
     with:
       image: "ghcr.io/gc69720/social-backend:${{ github.sha }}"
       generate_spdx: true
       sign_image: true
+
+  image-security:
+    needs: build-image
+    uses: GC69720/social_ci-cd/.github/workflows/container-security.yml@v1
+    with:
+      image: "ghcr.io/gc69720/social-backend:${{ github.sha }}"
+      path: "."
+    secrets: inherit
