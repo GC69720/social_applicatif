@@ -23,7 +23,7 @@ jobs:
       django_settings_module: "app.settings"
       run_tests: true
       upload_test_artifacts: true
-      # DB intégrée côté template :
+      # (optionnel) paramètres DB du template si tu veux activer Postgres côté template :
       postgres_image: "postgres:16"
       postgres_user: "app"
       postgres_password: "app"

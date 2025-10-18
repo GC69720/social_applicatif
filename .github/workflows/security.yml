@@ -22,6 +22,5 @@ jobs:
   trivy:
     uses: GC69720/social_ci-cd/.github/workflows/container-security.yml@v1
     with:
-      # Si manuel -> on utilise l'input ; sinon -> SHA du commit
       image: ghcr.io/gc69720/social-backend:${{ github.event_name == 'workflow_dispatch' && github.event.inputs.image_tag || github.sha }}
       path: "."

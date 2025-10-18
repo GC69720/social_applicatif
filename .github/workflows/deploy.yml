@@ -35,10 +35,11 @@ jobs:
     environment:
       name: ${{ github.event.inputs.environment }}
     timeout-minutes: 15
+
     env:
       IMAGE_REPO: "ghcr.io/gc69720/social-backend"
       CONTAINER_NAME: "social-backend"
-      # Fallback : si image_tag vide => github.sha
+      # fallback: si l'input est vide, on prend le SHA courant
       IMAGE_TAG: ${{ (github.event.inputs.image_tag && github.event.inputs.image_tag) || github.sha }}
 
     steps:
@@ -59,9 +60,11 @@ jobs:
             IMAGE="${IMAGE_REPO}:${IMAGE_TAG}"
             CONTAINER="${CONTAINER_NAME}"
             APP_PORT="${{ github.event.inputs.app_port }}"
+
             echo "==> Target image: ${IMAGE}"
             echo "==> Container: ${CONTAINER} on port ${APP_PORT}"
 
+            # (Si GHCR privé) login optionnel :
             REGISTRY_USER="${{ secrets.REGISTRY_USER }}"
             REGISTRY_TOKEN="${{ secrets.REGISTRY_TOKEN }}"
             if [[ -n "${REGISTRY_USER}" && -n "${REGISTRY_TOKEN}" ]]; then
