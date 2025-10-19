@@ -1,0 +1,27 @@
+# -------- Builder: build Vite --------
+FROM docker.io/node:20-alpine AS builder
+WORKDIR /app
+
+# Cache deps
+COPY package*.json ./
+RUN npm ci
+
+# Sources
+COPY . ./
+# Build production
+RUN npm run build
+
+# -------- Runtime: NGINX pour servir les assets --------
+FROM docker.io/nginx:1.27-alpine AS runtime
+
+# Copie du build Vite vers la racine servie par NGINX
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Conf NGINX (SPA: fallback sur index.html)
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+# Healthcheck: index.html doit répondre
+HEALTHCHECK --interval=30s --timeout=5s --retries=10 \
+  CMD wget -qO- http://localhost/ >/dev/null 2>&1 || exit 1

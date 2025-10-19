@@ -1,0 +1,60 @@
+# -------- Builder: construit les wheels Python --------
+FROM docker.io/python:3.12-slim AS builder
+
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential gcc libpq-dev libjpeg62-turbo-dev zlib1g-dev \
+  && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /tmp/build
+
+# Le contexte est backend/, donc on copie sans préfixe
+COPY requirements.txt ./requirements.txt
+RUN python -m pip install --upgrade pip wheel \
+ && pip wheel --wheel-dir /tmp/wheels -r requirements.txt
+
+# -------- Runtime: image légère non-root --------
+FROM docker.io/python:3.12-slim AS runtime
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+ARG APP_USER=app
+ARG APP_UID=10001
+RUN useradd -u ${APP_UID} -m -s /usr/sbin/nologin ${APP_USER}
+
+# Déps runtime min (uWSGI, Postgres client, curl, CA)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 curl ca-certificates uwsgi \
+  && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Installer les wheels construits
+COPY --from=builder /tmp/wheels /tmp/wheels
+RUN python -m pip install --upgrade pip \
+ && pip install --no-index --find-links=/tmp/wheels /tmp/wheels/*
+
+# Copier tout le code du backend (contexte = backend/)
+COPY . /app/
+
+# Préparer répertoires
+RUN mkdir -p /app/media /app/logs
+
+# Copier l'entrypoint, normaliser CRLF, chmod, puis chown (tant qu'on est root)
+COPY entrypoint.sh /entrypoint.sh
+RUN sed -i 's/\r$//' /entrypoint.sh \
+ && chmod 0755 /entrypoint.sh \
+ && chown -R ${APP_UID}:${APP_UID} /app /entrypoint.sh
+
+# 👉 Passer en non-root seulement maintenant
+USER ${APP_UID}
+
+EXPOSE 8000
+HEALTHCHECK --interval=30s --timeout=5s --retries=10 \
+  CMD curl -fsS http://localhost:8000/health || exit 1
+
+CMD ["/entrypoint.sh"]
