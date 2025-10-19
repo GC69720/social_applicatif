@@ -1,12 +1,12 @@
-# .github/workflows/backend.yml (dans social_applicatif)
+# .github/workflows/backend.yml
 name: Backend CI
 on: [push, pull_request]
+
 jobs:
   use-backend-ci:
-    uses: ORG/social_ci-cd/.github/workflows/backend-ci.yml@main
+    uses: GC69720/social_ci-cd/.github/workflows/backend-ci.yml@main
     with:
       image-tag: ${{ github.sha }}
+      image-name: ghcr.io/${{ github.repository_owner }}/social-backend
       push-image: ${{ github.ref == 'refs/heads/main' }}
-    secrets:
-      REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
-      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+    secrets: inherit
