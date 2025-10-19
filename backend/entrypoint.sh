@@ -16,5 +16,5 @@ if [ -f /etc/uwsgi/uwsgi.ini ]; then
   exec uwsgi --ini /etc/uwsgi/uwsgi.ini
 else
   echo "[entrypoint] starting uWSGI (fallback http-socket:8000)…"
-  exec uwsgi --http :8000 --wsgi-file config/wsgi.py --master --processes 4 --threads 2 --die-on-term
+  exec uwsgi --http :8000 --module social_applicatif.wsgi --master --processes 4 --threads 2 --die-on-term
 fi
