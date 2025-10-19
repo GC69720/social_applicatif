@@ -1,0 +1,91 @@
+title,body,labels
+US1 – Inscription utilisateur (email + mot de passe),"En tant que nouveau visiteur, je veux créer un compte avec email et mot de passe afin d’accéder à la plateforme.
+
+### Critères d’acceptation (format Gherkin FR)
+Étant donné qu’un visiteur se trouve sur la page d’inscription
+Lorsqu’il saisit un email valide et un mot de passe conforme
+Alors un compte est créé et un email de confirmation est envoyé
+
+### Notes
+- Champs obligatoires : email, mot de passe (politiques de complexité).","MVP,user-story,fonctionnel,authentification,backend,frontend"
+US2 – Connexion utilisateur,"En tant qu’utilisateur confirmé, je veux me connecter pour accéder à mon tableau de bord.
+
+### Critères d’acceptation
+Étant donné qu’un utilisateur a confirmé son compte
+Lorsqu’il saisit ses identifiants
+Alors il accède à son tableau de bord personnel
+
+### Notes
+- Gestion erreurs : identifiants invalides, compte non confirmé.","MVP,user-story,fonctionnel,authentification,backend,frontend"
+"US3 – Éditer son profil (bio, photo, lien)","En tant qu’utilisateur connecté, je veux modifier mon profil afin de le présenter aux autres.
+
+### Critères d’acceptation
+Étant donné qu’un utilisateur est connecté
+Lorsqu’il modifie ses informations de profil (bio, photo, lien)
+Alors les changements sont enregistrés et visibles sur sa page publique
+
+### Notes
+- Redimensionnement/validation image de profil.","MVP,user-story,fonctionnel,profil,backend,frontend"
+US4 – Publier un post (texte),"En tant qu’utilisateur connecté, je veux publier un post texte pour m’exprimer.
+
+### Critères d’acceptation
+Étant donné qu’un utilisateur est connecté
+Lorsqu’il saisit un texte et clique sur “Publier”
+Alors le post s’affiche immédiatement dans son fil et celui de ses abonnés
+
+### Notes
+- Longueur maximale, gestion brouillon (hors scope MVP si nécessaire).","MVP,user-story,fonctionnel,posts,backend,frontend"
+US5 – Voir le fil de posts (profils suivis),"En tant qu’utilisateur connecté, je veux voir un fil chronologique des posts des profils que je suis.
+
+### Critères d’acceptation
+Étant donné qu’un utilisateur est connecté
+Lorsqu’il accède à la page d’accueil
+Alors il voit une liste chronologique des publications des profils qu’il suit
+
+### Notes
+- Pagination, tri chronologique, état vide.","MVP,user-story,fonctionnel,fil,backend,frontend"
+US6 – Commenter un post,"En tant qu’utilisateur connecté, je veux ajouter un commentaire pour participer à la discussion.
+
+### Critères d’acceptation
+Étant donné qu’un utilisateur est connecté
+Lorsqu’il écrit un commentaire sous un post
+Alors le commentaire apparaît et l’auteur du post reçoit une notification
+
+### Notes
+- Modération basique, longueur maximale.","MVP,user-story,fonctionnel,commentaires,backend,frontend"
+US7 – Liker un post,"En tant qu’utilisateur connecté, je veux liker un post pour exprimer mon appréciation.
+
+### Critères d’acceptation
+Étant donné qu’un utilisateur est connecté
+Lorsqu’il clique sur “J’aime”
+Alors le compteur de likes s’incrémente et l’auteur est notifié
+
+### Notes
+- Un like par utilisateur par post (toggle).","MVP,user-story,fonctionnel,likes,backend,frontend"
+US8 – Suivre un autre utilisateur,"En tant qu’utilisateur connecté, je veux suivre un profil pour voir ses publications dans mon fil.
+
+### Critères d’acceptation
+Étant donné qu’un utilisateur est connecté
+Lorsqu’il clique sur “Suivre” sur le profil d’un autre utilisateur
+Alors ce profil est ajouté à sa liste de suivis
+
+### Notes
+- Éviter auto-suivi, bouton Suivre/Ne plus suivre.","MVP,user-story,fonctionnel,reseau,backend,frontend"
+"US9 – Recevoir des notifications (likes, commentaires, suivi)","En tant qu’utilisateur, je veux être notifié des interactions importantes pour rester informé.
+
+### Critères d’acceptation
+Étant donné qu’un utilisateur reçoit un like ou un commentaire
+Lorsqu’il consulte son centre de notifications
+Alors il voit la nouvelle activité avec lien vers le contenu associé
+
+### Notes
+- Badge non lu, pagination.","MVP,user-story,fonctionnel,notifications,backend,frontend"
+US10 – Se déconnecter,"En tant qu’utilisateur, je veux me déconnecter pour sécuriser ma session.
+
+### Critères d’acceptation
+Étant donné qu’un utilisateur est connecté
+Lorsqu’il clique sur “Déconnexion”
+Alors sa session est terminée et il est redirigé vers la page d’accueil publique
+
+### Notes
+- Invalidation du token côté client ; côté serveur selon stratégie choisie.","MVP,user-story,fonctionnel,authentification,frontend"
