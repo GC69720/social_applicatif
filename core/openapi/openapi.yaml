@@ -1,0 +1,19 @@
+---
+
+# 2) `social_ci-cd/docs/adr/ADR-TEMPLATE.md`
+
+```markdown
+# ADR-XXXX — Titre de la décision
+Date: YYYY-MM-DD
+
+## Contexte
+
+## Décision
+
+## Conséquences
+- Positives :
+- Négatives :
+
+## Alternatives considérées
+
+## Liens
