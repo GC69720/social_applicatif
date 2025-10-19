@@ -9,12 +9,11 @@ env = environ.Env(
     CORS_ALLOWED_ORIGINS=(list, []),
 )
 
-# Charge un .env local si présent (optionnel)
-environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))  # optionnel
 
-DEBUG = env("DEBUG")
+DEBUG = env("DEBUG", default=False)
 SECRET_KEY = env("SECRET_KEY", default="dev-only-change-me")
-ALLOWED_HOSTS = env("ALLOWED_HOSTS")
+ALLOWED_HOSTS = env("ALLOWED_HOSTS", default=[])
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -41,7 +40,6 @@ MIDDLEWARE = [
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 
-# DB via variables d'env (tes compose les fournissent)
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -53,10 +51,7 @@ DATABASES = {
     }
 }
 
-# Static & media (basique)
 STATIC_URL = "/static/"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = env("MEDIA_ROOT", default=str(BASE_DIR / "media"))
-
-# CORS (frontend)
 CORS_ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS", default=[])
