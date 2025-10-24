@@ -13,12 +13,22 @@ import environ
 # -------------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent  # .../backend
 
+DEFAULT_SECRET_KEY = (
+    "dev-only-change-me-but-at-least-it-is-50-characters-long-1234567890"
+)
+
 env = environ.Env(
     DEBUG=(bool, False),
-    SECRET_KEY=(str, "dev-only-change-me"),
+    SECRET_KEY=(str, DEFAULT_SECRET_KEY),
     ALLOWED_HOSTS=(list, []),
     CORS_ALLOWED_ORIGINS=(list, []),
     CSRF_TRUSTED_ORIGINS=(list, []),
+    SECURE_HSTS_SECONDS=(int, None),
+    SECURE_HSTS_INCLUDE_SUBDOMAINS=(bool, None),
+    SECURE_HSTS_PRELOAD=(bool, None),
+    SECURE_SSL_REDIRECT=(bool, None),
+    SESSION_COOKIE_SECURE=(bool, None),
+    CSRF_COOKIE_SECURE=(bool, None),
     # DB
     POSTGRES_HOST=(str, ""),
     POSTGRES_PORT=(str, "5432"),
@@ -140,6 +150,35 @@ STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "static"   # utile si collectstatic en prod
 MEDIA_URL = "/media/"
 MEDIA_ROOT = env("MEDIA_ROOT", default=str(BASE_DIR / "media"))
+
+# -------------------------------------------------------------------
+# Sécurité HTTP
+# -------------------------------------------------------------------
+SECURE_HSTS_SECONDS = env.int(
+    "SECURE_HSTS_SECONDS",
+    default=0 if DEBUG else 3600,
+)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool(
+    "SECURE_HSTS_INCLUDE_SUBDOMAINS",
+    default=SECURE_HSTS_SECONDS > 0,
+)
+SECURE_HSTS_PRELOAD = env.bool(
+    "SECURE_HSTS_PRELOAD",
+    default=SECURE_HSTS_SECONDS > 0,
+)
+SECURE_SSL_REDIRECT = env.bool(
+    "SECURE_SSL_REDIRECT",
+    default=not DEBUG,
+)
+SESSION_COOKIE_SECURE = env.bool(
+    "SESSION_COOKIE_SECURE",
+    default=not DEBUG,
+)
+CSRF_COOKIE_SECURE = env.bool(
+    "CSRF_COOKIE_SECURE",
+    default=not DEBUG,
+)
+SECURE_REFERRER_POLICY = env("SECURE_REFERRER_POLICY", default="same-origin")
 
 # -------------------------------------------------------------------
 # CORS / CSRF (derrière NGINX)
