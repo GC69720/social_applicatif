@@ -6,7 +6,6 @@ Django 5.2.x
 """
 
 from pathlib import Path
-import os
 import environ
 
 # -------------------------------------------------------------------
