@@ -6,6 +6,7 @@ Django 5.2.x
 """
 
 from pathlib import Path
+import hashlib
 import environ
 
 # -------------------------------------------------------------------
@@ -13,9 +14,15 @@ import environ
 # -------------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent  # .../backend
 
-DEFAULT_SECRET_KEY = (
-    "dev-only-change-me-but-at-least-it-is-50-characters-long-1234567890"
-)
+def _derive_default_secret_key() -> str:
+    """Return a deterministic dev/test secret key without leaking credentials."""
+
+    digest = hashlib.sha256(str(BASE_DIR).encode("utf-8")).hexdigest()
+    return f"sa-dev-secret-{digest}"
+
+
+DEFAULT_SECRET_KEY = _derive_default_secret_key()
+
 
 env = environ.Env(
     DEBUG=(bool, False),
