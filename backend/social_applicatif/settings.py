@@ -14,6 +14,7 @@ import environ
 # -------------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent  # .../backend
 
+
 def _derive_default_secret_key() -> str:
     """Return a deterministic dev/test secret key without leaking credentials."""
 
@@ -58,7 +59,14 @@ SECRET_KEY = env("SECRET_KEY")
 # Récupère la variable d'env ou applique des valeurs sûres par défaut
 ALLOWED_HOSTS = env.list(
     "DJANGO_ALLOWED_HOSTS",
-    default=["localhost", "127.0.0.1", "api", "web", "nginx", "preprod.social_applicatif.com"]
+    default=[
+        "localhost",
+        "127.0.0.1",
+        "api",
+        "web",
+        "nginx",
+        "preprod.social_applicatif.com",
+    ],
 )
 
 # -------------------------------------------------------------------
@@ -136,7 +144,9 @@ else:
 # Mots de passe
 # -------------------------------------------------------------------
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
@@ -154,7 +164,7 @@ USE_TZ = True
 # Static / Media
 # -------------------------------------------------------------------
 STATIC_URL = "static/"
-STATIC_ROOT = BASE_DIR / "static"   # utile si collectstatic en prod
+STATIC_ROOT = BASE_DIR / "static"  # utile si collectstatic en prod
 MEDIA_URL = "/media/"
 MEDIA_ROOT = env("MEDIA_ROOT", default=str(BASE_DIR / "media"))
 
@@ -190,12 +200,18 @@ SECURE_REFERRER_POLICY = env("SECURE_REFERRER_POLICY", default="same-origin")
 # -------------------------------------------------------------------
 # CORS / CSRF (derrière NGINX)
 # -------------------------------------------------------------------
-CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[
-    "https://preprod.social_applicatif.com",
-])
-CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[
-    "https://preprod.social_applicatif.com",
-])
+CORS_ALLOWED_ORIGINS = env.list(
+    "CORS_ALLOWED_ORIGINS",
+    default=[
+        "https://preprod.social_applicatif.com",
+    ],
+)
+CSRF_TRUSTED_ORIGINS = env.list(
+    "CSRF_TRUSTED_ORIGINS",
+    default=[
+        "https://preprod.social_applicatif.com",
+    ],
+)
 
 # Si NGINX en frontal : transmettre le schéma pour que Django sache qu'on est en HTTPS
 USE_X_FORWARDED_HOST = True
