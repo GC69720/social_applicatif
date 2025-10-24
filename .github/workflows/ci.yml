@@ -19,8 +19,8 @@ jobs:
     uses: GC69720/social_ci-cd/.github/workflows/python-django.yml@v1.1.0
     with:
       python_version: "3.12"
-      working_directory: "."
-      django_settings_module: "app.settings"
+      working_directory: "backend"
+      django_settings_module: "social_applicatif.settings"
       run_tests: true
       upload_test_artifacts: true
 
