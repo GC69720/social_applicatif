@@ -36,8 +36,14 @@ if env_file.exists():
 DEBUG = env("DEBUG")
 SECRET_KEY = env("SECRET_KEY")
 
-# Ex: "preprod.social_applicatif.com" ou liste "a,b,c"
-ALLOWED_HOSTS = env("ALLOWED_HOSTS") or (["*"] if DEBUG else [])
+# -------------------------------------------------------------------
+# ALLOWED_HOSTS
+# -------------------------------------------------------------------
+# Récupère la variable d'env ou applique des valeurs sûres par défaut
+ALLOWED_HOSTS = env.list(
+    "DJANGO_ALLOWED_HOSTS",
+    default=["localhost", "127.0.0.1", "api", "web", "nginx", "preprod.social_applicatif.com"]
+)
 
 # -------------------------------------------------------------------
 # Applications
@@ -139,11 +145,12 @@ MEDIA_ROOT = env("MEDIA_ROOT", default=str(BASE_DIR / "media"))
 # -------------------------------------------------------------------
 # CORS / CSRF (derrière NGINX)
 # -------------------------------------------------------------------
-CORS_ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS")
-# Ex. "https://preprod.social_applicatif.com,https://reseau.example.com"
-
-CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
-# Ex. "https://preprod.social_applicatif.com"
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[
+    "https://preprod.social_applicatif.com",
+])
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[
+    "https://preprod.social_applicatif.com",
+])
 
 # Si NGINX en frontal : transmettre le schéma pour que Django sache qu'on est en HTTPS
 USE_X_FORWARDED_HOST = True
