@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   app-ci:
-    uses: GC69720/social_ci-cd/.github/workflows/python-django.yml@v1.1.0
+    uses: gc69720/social_ci-cd/.github/workflows/python-django.yml@v1.1.0
     with:
       python_version: "3.12"
       working_directory: "backend"
@@ -26,7 +26,7 @@ jobs:
 
   build-image:
     needs: app-ci
-    uses: GC69720/social_ci-cd/.github/workflows/container-buildah.yml@v1
+    uses: gc69720/social_ci-cd/.github/workflows/container-buildah.yml@v1
     with:
       image_name: "ghcr.io/gc69720/social-backend"
       context: "."
@@ -37,15 +37,16 @@ jobs:
 
   sbom:
     needs: build-image
-    uses: GC69720/social_ci-cd/.github/workflows/oci-sbom-sign.yml@v1.1.2
+    if: ${{ needs.build-image.result == 'success' }}
+    uses: gc69720/social_ci-cd/.github/workflows/oci-sbom-sign.yml@v1.1.2
     with:
       image: "ghcr.io/gc69720/social-backend:${{ github.sha }}"
       generate_spdx: true
-      sign_image: true
+      sign_image: ${{ secrets.COSIGN_PRIVATE_KEY != '' || secrets.COSIGN_PRIVATE_KEY_B64 != '' }}
 
   image-security:
     needs: build-image
-    uses: GC69720/social_ci-cd/.github/workflows/container-security.yml@v1
+    uses: gc69720/social_ci-cd/.github/workflows/container-security.yml@v1
     with:
       image: "ghcr.io/gc69720/social-backend:${{ github.sha }}"
       path: "."
