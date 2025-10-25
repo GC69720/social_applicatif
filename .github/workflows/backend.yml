@@ -7,6 +7,6 @@ jobs:
     uses: GC69720/social_ci-cd/.github/workflows/backend-ci.yml@main
     with:
       image-tag: ${{ github.sha }}
-      image-name: ghcr.io/${{ github.repository_owner }}/social-backend
+      image-name: ghcr.io/${{ toLower(github.repository_owner) }}/social-backend
       push-image: ${{ github.ref == 'refs/heads/main' }}
     secrets: inherit
