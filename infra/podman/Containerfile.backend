@@ -1,18 +1,23 @@
-FROM python:3.12-slim
+FROM python:3.12.7-slim-bookworm
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN set -eux; \
+    apt-get update; \
+    apt-get upgrade -y; \
+    apt-get install -y --no-install-recommends \
       build-essential curl ca-certificates git \
- && rm -rf /var/lib/apt/lists/*
+    ; \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY . /src
 
 RUN set -eux; \
+    pip install --no-cache-dir --upgrade pip; \
     REQ=""; \
     if [ -f /src/backend/requirements.txt ]; then REQ="/src/backend/requirements.txt"; \
     elif [ -f /src/requirements.txt ]; then REQ="/src/requirements.txt"; fi; \
